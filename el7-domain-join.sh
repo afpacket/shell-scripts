@@ -1,9 +1,9 @@
 #!/bin/bash
 
-DOMAIN=mydomain
-OU=myou
-USER=myuser
-GROUP=mygroup
+DOMAIN="mydomain"
+OU="myou"
+USER="myuser"
+GROUP="mygroup"
 
 show_usage() {
    echo -e "BASH Script for joining RHEL / CentOS 7 machine to a domain"
@@ -30,10 +30,22 @@ elif [ "$1" == "-i" ] || [ "$1" == "--install-deps" ]; then
 elif [ "$1" == "-j" ] || [ "$1" == "--join" ]; then
    realm join $DOMAIN -U $USER --computer-ou=$OU -v
    sed -i 's/use_fully_qualified_names = True/use_fully_qualified_names = False/g' /etc/sssd/sssd.conf
+   #echo "dyndns_update = True" >> /etc/sssd/sssd.conf
    systemctl restart sssd.service
    realm permit -g $GROUP
    sed -i '106i "%'$GROUP'" ALL=(ALL)\tALL' /etc/sudoers
-   exit 0
+
+	# Search for domain presence in krb5.conf	
+	KRBSEARCH=$(grep -i "$DOMAIN" /etc/krb5.conf)
+ 
+	if [ "$KRBSEARCH" == "" ]; then
+	   sed -i 's/default_ccache_name = KEYRING:persistent:%{uid}/default_ccache_name = KEYRING:persistent:%{uid}\n\n default_realm = '"${DOMAIN^^}"'/g' /etc/krb5.conf
+	   sed -i 's/# }/# }\n\n '"${DOMAIN^^}"' = {\n }/g' /etc/krb5.conf
+	   sed -i 's/# example.com = EXAMPLE.COM/# example.com = EXAMPLE.COM\n '"$DOMAIN"' = '"${DOMAIN^^}"'\n .'"$DOMAIN"' = '"${DOMAIN^^}"'/g' /etc/krb5.conf
+	   exit 0
+	else 
+	   exit 0 
+   	fi
 else 
    show_usage
    exit 1
