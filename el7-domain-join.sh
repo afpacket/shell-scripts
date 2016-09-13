@@ -28,13 +28,15 @@ elif [ "$1" == "-i" ] || [ "$1" == "--install-deps" ]; then
    yum -y install samba-common realmd oddjob oddjob-mkhomedir sssd adcli
    exit 0
 elif [ "$1" == "-j" ] || [ "$1" == "--join" ]; then
-   realm join $DOMAIN -U $USER --computer-ou=$OU -v
+   realm join "$DOMAIN" -U "$USER" --computer-ou="$OU" -v
    sed -i 's/use_fully_qualified_names = True/use_fully_qualified_names = False/g' /etc/sssd/sssd.conf
    #echo "dyndns_update = True" >> /etc/sssd/sssd.conf
    systemctl restart sssd.service
    realm permit -g $GROUP
-   sed -i '106i "%'$GROUP'" ALL=(ALL)\tALL' /etc/sudoers
-
+   touch /etc/sudoers.d/"$GROUP"
+   echo -e "\"%"$GROUP"\" ALL=(ALL)\tALL" > /etc/sudoers.d/"$GROUP"
+   chmod 440 /etc/sudoers.d/"$GROUP"
+   
 	# Search for domain presence in krb5.conf	
 	KRBSEARCH=$(grep -i "$DOMAIN" /etc/krb5.conf)
  
