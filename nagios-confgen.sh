@@ -72,7 +72,7 @@ fi
 
 if [ "$IPADDR" == "" ]; then
    IPADDR=${HOST_NAME_CLEAN}
-   echo -e "# WARNING: Hostname not resolvable\n"
+   echo -e "####################################\n# WARNING: Hostname not resolvable #\n####################################\n"
 fi
 
 echo -e "define host {\n\tuse\t\t\tgeneric-host\n\thost_name\t\t$HOST_NAME_CLEAN\n\talias\t\t\t$DESCRIPTION_CLEAN\n\taddress\t\t\t$IPADDR\n\tcontact_groups\t\t$CONTACTGROUPS_CLEAN\n\thostgroups\t\t$HOSTGROUP_NAME_CLEAN\n\tstatusmap_image\t\t$IMAGE_CLEAN\n\ticon_image\t\t$IMAGE_CLEAN\n\ticon_image_alt\t\tLinux Server\n\t}\n"
