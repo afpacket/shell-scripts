@@ -3,7 +3,7 @@
 show_usage() {
    echo -e "BASH Script for generating a Nagios host definition"
    echo -e "By Andrew Fox\n"
-   echo -e "Usage: nagios-confgen.sh -H <Host name> [-c <Contact group(s)> -g <Hostgroup(s)> -d <Description>] [-i <Image>]\n"
+   echo -e "Usage: nagios-confgen.sh -H <Host name> [-c <Contact group(s)> -g <Hostgroup(s)> -d <Description> -i <Image>]\n"
    echo -e "Example:"
    echo -e "nagios-confgen.sh -H nagios -c admins -g linux-servers -d myserver -i redhat.png"
 }
