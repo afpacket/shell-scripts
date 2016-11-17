@@ -45,7 +45,9 @@ DESCRIPTION_CLEAN=${DESCRIPTION//[^a-zA-Z0-9\[\]\ \_]/}
 HOST_NAME_CLEAN=${HOST_NAME//[^a-zA-Z0-9\-\.]/}
 HOSTGROUP_NAME_CLEAN=${HOSTGROUP_NAME//[^a-zA-Z0-9\-\_\,]/}
 IMAGE_CLEAN=${IMAGE//[^a-zA-Z0-9\.]/}
+# Other Variables
 IPADDR=$(host ${HOST_NAME_CLEAN} | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
+DEFAULT_PATH="/etc/nagios/conf.d"
 
 if [[ "$HOST_NAME_CLEAN" == "" ]]; then
    show_usage
@@ -70,8 +72,19 @@ fi
 
 if [ "$IPADDR" == "" ]; then
    IPADDR=${HOST_NAME_CLEAN}
+   echo -e "# WARNING: Hostname not resolvable\n"
 fi
 
-echo -e "define host {\n\tuse\t\t\tgeneric-host\n\thost_name\t\t$HOST_NAME_CLEAN\n\talias\t\t\t$DESCRIPTION_CLEAN\n\taddress\t\t\t$IPADDR\n\tcontact_groups\t\t$CONTACTGROUPS_CLEAN\n\thostgroups\t\t$HOSTGROUP_NAME_CLEAN\n\tstatusmap_image\t\t$IMAGE_CLEAN\n\ticon_image\t\t$IMAGE_CLEAN\n\ticon_image_alt\t\tLinux Server\n\t}"
+echo -e "define host {\n\tuse\t\t\tgeneric-host\n\thost_name\t\t$HOST_NAME_CLEAN\n\talias\t\t\t$DESCRIPTION_CLEAN\n\taddress\t\t\t$IPADDR\n\tcontact_groups\t\t$CONTACTGROUPS_CLEAN\n\thostgroups\t\t$HOSTGROUP_NAME_CLEAN\n\tstatusmap_image\t\t$IMAGE_CLEAN\n\ticon_image\t\t$IMAGE_CLEAN\n\ticon_image_alt\t\tLinux Server\n\t}\n"
+
+read -p "Confirm adding to '${DEFAULT_PATH}/${HOST_NAME_CLEAN}.cfg' (y/n)? " -n 1 -r
+echo    # (optional) move to a new line
+if [[ ! $REPLY =~ ^[Yy]$ ]]
+then
+    # handle exits from shell or function but don't exit interactive shell
+    [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
+fi
+
+echo -e "define host {\n\tuse\t\t\tgeneric-host\n\thost_name\t\t$HOST_NAME_CLEAN\n\talias\t\t\t$DESCRIPTION_CLEAN\n\taddress\t\t\t$IPADDR\n\tcontact_groups\t\t$CONTACTGROUPS_CLEAN\n\thostgroups\t\t$HOSTGROUP_NAME_CLEAN\n\tstatusmap_image\t\t$IMAGE_CLEAN\n\ticon_image\t\t$IMAGE_CLEAN\n\ticon_image_alt\t\tLinux Server\n\t}\n" > "${DEFAULT_PATH}/${HOST_NAME_CLEAN}.cfg"
 
 exit 0
