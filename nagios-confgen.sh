@@ -22,6 +22,10 @@ else
 			d)
 			DESCRIPTION="$OPTARG"
 			;;
+			h)
+			show_usage
+			exit 1
+			;;
 			H)
 			HOST_NAME="$OPTARG"
 			;;
