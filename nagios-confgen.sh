@@ -3,7 +3,7 @@
 show_usage() {
    echo -e "BASH Script for generating a Nagios host definition"
    echo -e "By Andrew Fox\n"
-   echo -e "Usage: nagios-confgen.sh -H <Host name> -c <Contact group(s)> -g <Hostgroup(s)> [-d <Description>] [-i <Image>]\n"
+   echo -e "Usage: nagios-confgen.sh -H <Host name> [-c <Contact group(s)> -g <Hostgroup(s)> -d <Description>] [-i <Image>]\n"
    echo -e "Example:"
    echo -e "nagios-confgen.sh -H nagios -c admins -g linux-servers -d myserver -i redhat.png"
 }
@@ -42,24 +42,36 @@ fi
 # Input Sanitization
 CONTACTGROUPS_CLEAN=${CONTACTGROUPS//[^a-zA-Z0-9\-\_\,]/}
 DESCRIPTION_CLEAN=${DESCRIPTION//[^a-zA-Z0-9\[\]\ \_]/}
-HOST_NAME_CLEAN=${HOST_NAME//[^a-zA-Z0-9]/}
+HOST_NAME_CLEAN=${HOST_NAME//[^a-zA-Z0-9\-\.]/}
 HOSTGROUP_NAME_CLEAN=${HOSTGROUP_NAME//[^a-zA-Z0-9\-\_\,]/}
 IMAGE_CLEAN=${IMAGE//[^a-zA-Z0-9\.]/}
 IPADDR=$(host ${HOST_NAME_CLEAN} | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
 
-if [[ "$CONTACTGROUPS_CLEAN" == "" || "$HOST_NAME_CLEAN" == "" || "$HOSTGROUP_NAME_CLEAN" == "" ]]; then
+if [[ "$HOST_NAME_CLEAN" == "" ]]; then
    show_usage
    exit 1
+fi
+
+if [ "$CONTACTGROUPS_CLEAN" == "" ]; then
+   CONTACTGROUPS_CLEAN="admins"
 fi
 
 if [ "$DESCRIPTION_CLEAN" == "" ]; then
    DESCRIPTION_CLEAN=${HOST_NAME_CLEAN}
 fi
 
-if [ "$IMAGE_CLEAN" == "" ]; then
-   IMAGE_CLEAN=switch.gif
+if [ "$HOSTGROUP_NAME_CLEAN" == "" ]; then
+   HOSTGROUP_NAME_CLEAN="linux-servers"
 fi
 
-echo -e "define host {\n\tuse\t\t\tgeneric-host\n\thost_name\t\t$HOST_NAME_CLEAN\n\talias\t\t\t$DESCRIPTION_CLEAN\n\taddress\t\t\t$IPADDR\n\tcontact_groups\t\t$CONTACTGROUPS_CLEAN\n\thostgroups\t\t$HOSTGROUP_NAME_CLEAN\n\ticon_image\t\t$IMAGE_CLEAN\n\t}"
+if [ "$IMAGE_CLEAN" == "" ]; then
+   IMAGE_CLEAN=linux.png
+fi
+
+if [ "$IPADDR" == "" ]; then
+   IPADDR=${HOST_NAME_CLEAN}
+fi
+
+echo -e "define host {\n\tuse\t\t\tgeneric-host\n\thost_name\t\t$HOST_NAME_CLEAN\n\talias\t\t\t$DESCRIPTION_CLEAN\n\taddress\t\t\t$IPADDR\n\tcontact_groups\t\t$CONTACTGROUPS_CLEAN\n\thostgroups\t\t$HOSTGROUP_NAME_CLEAN\n\tstatusmap_image\t\t$IMAGE_CLEAN\n\ticon_image\t\t$IMAGE_CLEAN\n\ticon_image_alt\t\tLinux Server\n\t}"
 
 exit 0
