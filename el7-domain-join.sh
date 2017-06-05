@@ -25,7 +25,7 @@ elif [ "$1" == "-h" ] || [ "$1" == "--help" ] || [ $# -eq 0 ]; then
    show_usage
    exit 1
 elif [ "$1" == "-i" ] || [ "$1" == "--install-deps" ]; then
-   yum -y install samba-common realmd oddjob oddjob-mkhomedir sssd adcli
+   yum -y install samba-common samba-common-tools realmd oddjob oddjob-mkhomedir sssd adcli
    exit 0
 elif [ "$1" == "-j" ] || [ "$1" == "--join" ]; then
    realm join "$DOMAIN" -U "$USER" --computer-ou="$OU" -v
